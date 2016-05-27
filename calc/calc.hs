@@ -18,23 +18,28 @@ peek val:rest = val
 -}
 
 -- TODO use stack utility functions
-rpnFolder :: (RealFrac a, Read a) => a -> [a] -> String -> [a]
+rpnFolder :: (RealFrac a, Floating a, Read a) => a -> [a] -> String -> [a]
 rpnFolder _ (rNum:lNum:rest) "+"  = (lNum + rNum):rest
 rpnFolder _ (rNum:lNum:rest) "-"  = (lNum - rNum):rest
 rpnFolder _ (rNum:lNum:rest) "*"  = (lNum * rNum):rest
 rpnFolder _ (rNum:lNum:rest) "/"  = (lNum / rNum):rest
+rpnFolder _ (rNum:lNum:rest) "**" = (lNum ** rNum):rest
+rpnFolder _ (rNum:lNum:rest) "<<" = (lNum * (2 ** rNum)):rest
+rpnFolder _ (rNum:lNum:rest) ">>" = (lNum / (2 ** rNum)):rest
 rpnFolder prevAns stack "ans"     = prevAns:stack
+rpnFolder _       stack "pi"      = pi:stack
+rpnFolder _       stack "e"       = (exp 1):stack
 rpnFolder _ stack numberString    = (read numberString):stack
 
-rpnSolver :: (RealFrac a, Read a) => [String] -> a -> [a]
+rpnSolver :: (RealFrac a, Floating a, Read a) => [String] -> a -> [a]
 rpnSolver parse prevAns = foldl (rpnFolder prevAns) [] parse
 
-solve :: (RealFrac a, Read a) => [String] -> a -> a
+solve :: (RealFrac a, Floating a, Read a) => [String] -> a -> a
 solve parse prevAns =
   let resultStack = rpnSolver parse prevAns
   in head resultStack
 
-loop :: (RealFrac a, Read a, Show a) => a -> IO ()
+loop :: (RealFrac a, Floating a, Read a, Show a) => a -> IO ()
 loop ans = do
   putStr "> "
   flush
