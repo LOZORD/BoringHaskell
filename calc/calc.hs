@@ -6,30 +6,18 @@ flush = hFlush stdout
 isInt :: RealFrac a => a -> Bool
 isInt num = (floor num) == (ceiling num)
 
-{- Some stack utility functions
-push :: a -> [a] -> [a]
-push val stack = val:stack
-
-pop :: [a] -> (a, [a])
-pop val:rest = (val, rest)
-
-peek :: [a] -> a
-peek val:rest = val
--}
-
--- TODO use stack utility functions
 rpnFolder :: (RealFrac a, Floating a, Read a) => a -> [a] -> String -> [a]
-rpnFolder _ (rNum:lNum:rest) "+"  = (lNum + rNum):rest
-rpnFolder _ (rNum:lNum:rest) "-"  = (lNum - rNum):rest
-rpnFolder _ (rNum:lNum:rest) "*"  = (lNum * rNum):rest
-rpnFolder _ (rNum:lNum:rest) "/"  = (lNum / rNum):rest
-rpnFolder _ (rNum:lNum:rest) "**" = (lNum ** rNum):rest
-rpnFolder _ (rNum:lNum:rest) "<<" = (lNum * (2 ** rNum)):rest
-rpnFolder _ (rNum:lNum:rest) ">>" = (lNum / (2 ** rNum)):rest
-rpnFolder prevAns stack "ans"     = prevAns:stack
-rpnFolder _       stack "pi"      = pi:stack
-rpnFolder _       stack "e"       = (exp 1):stack
-rpnFolder _ stack numberString    = (read numberString):stack
+rpnFolder _ (rNum:lNum:rest) "+"    = (lNum + rNum):rest
+rpnFolder _ (rNum:lNum:rest) "-"    = (lNum - rNum):rest
+rpnFolder _ (rNum:lNum:rest) "*"    = (lNum * rNum):rest
+rpnFolder _ (rNum:lNum:rest) "/"    = (lNum / rNum):rest
+rpnFolder _ (rNum:lNum:rest) "**"   = (lNum ** rNum):rest
+rpnFolder _ (rNum:lNum:rest) "<<"   = (lNum * (2 ** rNum)):rest
+rpnFolder _ (rNum:lNum:rest) ">>"   = (lNum / (2 ** rNum)):rest
+rpnFolder prevAns stack      "ans"  = prevAns:stack
+rpnFolder _       stack      "pi"   = pi:stack
+rpnFolder _       stack      "e"    = (exp 1):stack
+rpnFolder _ stack numberString      = (read numberString):stack
 
 rpnSolver :: (RealFrac a, Floating a, Read a) => [String] -> a -> [a]
 rpnSolver parse prevAns = foldl (rpnFolder prevAns) [] parse
@@ -54,5 +42,4 @@ loop ans = do
 main :: IO ()
 main = do
   putStrLn "Reverse Polish Notation Calculator by LOZORD 2016"
-  flush
   loop 0
