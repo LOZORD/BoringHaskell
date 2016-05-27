@@ -3,23 +3,43 @@ import System.IO (hFlush, stdout)
 flush :: IO ()
 flush = hFlush stdout
 
-parseInput :: String -> [String]
--- TODO
-parseInput input = words input
-
 isInt :: RealFrac a => a -> Bool
 isInt num = (floor num) == (ceiling num)
 
-solve :: RealFrac a => [String] -> a -> a
--- TODO
-solve parse prevAns = prevAns
+{- Some stack utility functions
+push :: a -> [a] -> [a]
+push val stack = val:stack
 
-loop :: (RealFrac a, Show a) => a -> IO ()
+pop :: [a] -> (a, [a])
+pop val:rest = (val, rest)
+
+peek :: [a] -> a
+peek val:rest = val
+-}
+
+-- TODO use stack utility functions
+rpnFolder :: (RealFrac a, Read a) => a -> [a] -> String -> [a]
+rpnFolder _ (rNum:lNum:rest) "+"  = (lNum + rNum):rest
+rpnFolder _ (rNum:lNum:rest) "-"  = (lNum - rNum):rest
+rpnFolder _ (rNum:lNum:rest) "*"  = (lNum * rNum):rest
+rpnFolder _ (rNum:lNum:rest) "/"  = (lNum / rNum):rest
+rpnFolder prevAns stack "ans"     = prevAns:stack
+rpnFolder _ stack numberString    = (read numberString):stack
+
+rpnSolver :: (RealFrac a, Read a) => [String] -> a -> [a]
+rpnSolver parse prevAns = foldl (rpnFolder prevAns) [] parse
+
+solve :: (RealFrac a, Read a) => [String] -> a -> a
+solve parse prevAns =
+  let resultStack = rpnSolver parse prevAns
+  in head resultStack
+
+loop :: (RealFrac a, Read a, Show a) => a -> IO ()
 loop ans = do
   putStr "> "
   flush
   input <- getLine
-  let parse = parseInput input
+  let parse = words input
   let solution = solve parse ans
   let solutionFormat = if isInt solution then show (floor solution) else show solution
   let solutionStr = "# " ++ solutionFormat
@@ -27,4 +47,7 @@ loop ans = do
   loop solution
 
 main :: IO ()
-main = loop 0
+main = do
+  putStrLn "Reverse Polish Notation Calculator by LOZORD 2016"
+  flush
+  loop 0
