@@ -67,3 +67,15 @@ build :: [LogMessage] -> MessageTree
 -- `(flip insert)` could have been the first arg to foldl'
 -- but the lambda is more explicit
 build lms = foldl' (\ tree lm -> insert lm tree) Leaf lms
+
+-- Exercise 4
+inOrder :: MessageTree -> [LogMessage]
+-- a leaf has no data, so there's no data to include in the result
+inOrder Leaf = []
+inOrder (Node left curr right) =
+      -- first get the contents of the left subtree
+  let leftList  = inOrder left
+      -- then get then get the contents of the right subtree
+      rightList = inOrder right
+      -- finally, create a list of the elements in L-C-R order
+  in leftList ++ [curr] ++ rightList
