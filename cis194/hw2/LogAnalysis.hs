@@ -2,6 +2,8 @@
 
 module LogAnalysis where
 
+-- foldl' is the more efficient version of foldl
+import Data.List (foldl')
 import Log
 
 -- Exercise 1
@@ -58,3 +60,10 @@ insert myLM currTree =
         then (Node (insert myLM left) currLM right)
         -- otherwise, recursively insert on the right subtree
         else (Node left currLM (insert myLM right))
+
+-- Exercise 3
+build :: [LogMessage] -> MessageTree
+-- iteratively build up new tree using LogMessages list and empty tree (Leaf)
+-- `(flip insert)` could have been the first arg to foldl'
+-- but the lambda is more explicit
+build lms = foldl' (\ tree lm -> insert lm tree) Leaf lms
