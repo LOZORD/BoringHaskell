@@ -38,11 +38,23 @@ parse :: String -> [LogMessage]
 -- for every line in the file, convert it to a LogMessage
 parse fileContents = map (parseMessage) (lines fileContents)
 
--- Exercise 2 TODO
+-- Exercise 2
 insert :: LogMessage -> MessageTree -> MessageTree
-insert = undefined
---insert (Unknown _) tree = tree
---insert logMess tree = insert' logMess tree tree
-
---insert' :: LogMessage -> MessageTree -> MessageTree -> MessageTree
---insert' logMess 
+-- don't do anything with an Unknown LogMessage
+insert (Unknown _) tree = tree
+-- if the current tree is just a leaf, we can insert now!
+insert myLM Leaf = Node Leaf myLM Leaf
+-- otherwise, our insertion depends on where we have to recurse
+insert myLM currTree =
+      -- get the time stamp for the LogMessage we wish to insert
+  let (LogMessage _ myTS _) = myLM
+      -- get the left and right subtrees as well as the current LogMessage
+      (Node left currLM right) = currTree
+      -- and finally, get the time stamp for the current LogMessage
+      (LogMessage _ currTS _) = currLM
+      -- compare the ts for the LM we wish to insert with the current ts
+  in  if myTS <= currTS
+        -- if leq, recursively insert on the left subtree
+        then (Node (insert myLM left) currLM right)
+        -- otherwise, recursively insert on the right subtree
+        else (Node left currLM (insert myLM right))
