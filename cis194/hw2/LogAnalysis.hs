@@ -79,3 +79,30 @@ inOrder (Node left curr right) =
       rightList = inOrder right
       -- finally, create a list of the elements in L-C-R order
   in leftList ++ [curr] ++ rightList
+
+-- Exercise 5
+-- first, we will create some helper functions
+isError :: LogMessage -> Bool
+isError (LogMessage (Error _) _ _)  = True
+isError _                           = False
+
+isSevere :: LogMessage -> Bool
+isSevere (LogMessage (Error level) _ _) = level >= 50
+isSevere _ = False
+
+getMessage :: LogMessage -> String
+getMessage (LogMessage _ _ s) = s
+getMessage (Unknown s)        = s
+
+-- now, for the 'main' function
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong unsortedLMs =
+      -- first, sort LogMessages using our tree sorting technique
+  let sortedLMs = inOrder (build unsortedLMs)
+      -- we only care about Error LogMessages ...
+      errorLMs  = filter (isError) sortedLMs
+      -- ... whose levels are geq 50
+      severeLMs = filter (isSevere) errorLMs
+      -- and finally, we only care about their message contents
+      severeStrings = map (getMessage) severeLMs
+  in severeStrings
