@@ -1,0 +1,2 @@
+-- Left as an exercise to you!
+-- Try to rewrite the code in `Long.hs` into code that is as short as possible!
