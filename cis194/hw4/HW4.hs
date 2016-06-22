@@ -43,3 +43,13 @@ isBalanced (Node height lT _ rT) =
       (lH, rH) = (getHeight lT, getHeight rT)
       currBalanced = (abs (lH - rH)) <= 1
   in lrBalanced && currBalanced
+
+-- Exercise 3
+myFoldl :: (a -> b -> a) -> a -> [b] -> a
+{-- foldl is like foldr EXCEPT
+ - it goes from left to right
+ - ---> hence the `reverse`
+ - its accumulation function is f(acc, elem) instead of f(elem, acc)
+ - ---> hence the `flip`
+--}
+myFoldl f base xs = foldr (flip f) base (reverse xs)
