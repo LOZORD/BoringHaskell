@@ -1,4 +1,4 @@
-import Data.List (foldl')
+import Data.List (foldl', (\\))
 
 -- Exercise 1
 
@@ -23,7 +23,7 @@ foldTree :: [a] -> Tree a
 foldTree list = foldl' (flip insert) Leaf list
 
 getHeight :: Tree a -> Integer
-getHeight Leaf = -1
+getHeight Leaf = -1 -- a sentinel value (-Inf would be more correct)
 getHeight (Node height _ _ _) = height
 
 insert :: a -> Tree a -> Tree a
@@ -45,6 +45,7 @@ isBalanced (Node height lT _ rT) =
   in lrBalanced && currBalanced
 
 -- Exercise 3
+
 myFoldl :: (a -> b -> a) -> a -> [b] -> a
 {-- foldl is like foldr EXCEPT
  - it goes from left to right
@@ -53,3 +54,47 @@ myFoldl :: (a -> b -> a) -> a -> [b] -> a
  - ---> hence the `flip`
 --}
 myFoldl f base xs = foldr (flip f) base (reverse xs)
+
+-- Exercise 4 --
+
+-- a function to get an i and j into the form used in the sieve
+formSundaram :: Integer -> Integer -> Integer
+formSundaram i j = i + j + 2 * i * j
+
+-- the same function as above, but works on
+-- `(i, j)` [a pair]
+-- instead of
+-- `i j` [two integers]
+-- to you, it might not seem like a difference, but to Haskell, it is!
+formSundaram' :: (Integer, Integer) -> Integer
+formSundaram' = uncurry (formSundaram)
+
+-- This is the two-part sieve filter function as described in the Wikipedia
+-- article. Notice that it takes an integer `n` as the first argument.
+-- This allows us to use the upper bound of the range in this second test.
+-- In the main sieve code below, notice how we curry this function with the
+-- `n` value given to the sieve function. "Currying" is an important technique
+-- in Haskell. Learning about Mr. Haskell Curry and the `curry` and `uncurry`
+-- functions will help you get stronger with Haskell!
+filterSundaram :: Integer -> (Integer, Integer) -> Bool
+filterSundaram n (i, j) =
+  let s     = formSundaram i j
+      test1 = 1 <= i && i <= j
+      test2 = s <= n
+  in test1 && test2
+
+-- our main sieve function, as described in the exercise
+sieveSundaram :: Integer -> [Integer]
+sieveSundaram n =
+  let range     = [1..n]
+      -- using the provided hint for the Cartesian product
+      allPairs  = [(i, j) | i <- range, j <- range]
+      -- get the list of pairs we want to remove
+      -- (see comment about currying above)
+      toRemovePairs  = filter (filterSundaram n) allPairs
+      -- change all the (i, j) pairs to their "Sundaram" forms
+      toRemoveIntegers = map (formSundaram') toRemovePairs
+      -- take the difference of the range and the numbers we wish to remove
+      remainingIntegers = range \\ toRemoveIntegers
+  -- double and increment the remaining numbers to get primes up to 2n + 2
+  in  map (\ k -> 2*k + 1)remainingIntegers
