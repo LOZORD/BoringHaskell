@@ -21,4 +21,17 @@ evalStr input =
     Nothing -> Nothing
     Just expr -> Just (eval expr)
 
--- Exercise 3 -- TODO
+-- Exercise 3
+
+class Expr a where
+  lit :: Integer -> a
+  add :: a -> a -> a
+  mul :: a -> a -> a
+
+instance Expr ExprT where
+  lit n = (Lit n)
+  add e1 e2 = (Add e1 e2)
+  mul e1 e2 = (Mul e1 e2)
+
+reify :: ExprT -> ExprT
+reify = id
