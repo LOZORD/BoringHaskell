@@ -1,7 +1,9 @@
+{-# LANGUAGE TypeSynonymInstances #-}
 module Calc where
 
 import ExprT
 import Parser (parseExp)
+import qualified StackVM as SVM (StackExp(..), Program, stackVM, StackVal)
 
 -- Exercise 1
 
@@ -70,3 +72,28 @@ testInteger = testExp :: Maybe Integer  -- Just -7
 testBool    = testExp :: Maybe Bool     -- Just True
 testMM      = testExp :: Maybe MinMax   -- Just (MinMax 5)
 testSat     = testExp :: Maybe Mod7     -- Just (Mod7 0)
+
+-- Exercise 5
+
+-- this is a little trick that allows us to make and instance of Expr on a
+-- Program, which is just a list of StackExp's
+newtype ProgramWrapper = ProgramWrapper SVM.Program
+
+instance Expr ProgramWrapper where
+  lit n = ProgramWrapper ([SVM.PushI n])
+  add (ProgramWrapper p1) (ProgramWrapper p2) = ProgramWrapper (p1 ++ p2 ++ [SVM.Add])
+  mul (ProgramWrapper p1) (ProgramWrapper p2) = ProgramWrapper (p1 ++ p2 ++ [SVM.Mul])
+
+compile :: String -> Maybe SVM.Program
+compile input =
+  let parse = parseExp lit add mul input :: Maybe ProgramWrapper
+  in case parse of
+    Nothing -> Nothing
+    Just (ProgramWrapper program) -> Just program
+
+compileAndRun :: String -> Either String SVM.StackVal
+compileAndRun input =
+  let program = compile input
+  in case program of
+    Nothing -> Left "Could not compile!"
+    Just (program) -> SVM.stackVM program
