@@ -53,3 +53,22 @@ streamMap f (Stream (val, next)) = Stream (f val, streamMap f next)
 
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed f val =  Stream (val, streamFromSeed f (f val))
+
+-- Exercise 5
+
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+--  https://www.reddit.com/r/haskellquestions/comments/2qv1nr/help_with_cis194_hw6_question_5/
+--  NOTE: the pattern matching for the arguments can cause problems. Since our
+--  streams are infinite, eagerly pattern matching on the second stream can
+--  cause an "infinite-loop" problem. See the Reddit post for more information.
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Stream (v1, s1)) s2 = Stream (v1, interleaveStreams s2 s1)
+
+-- https://oeis.org/A001511 (see Burgess, as others have noted)
+genRuler :: Integer -> Stream Integer
+genRuler n = interleaveStreams (streamRepeat n) (genRuler (n + 1))
+
+ruler :: Stream Integer
+ruler = genRuler 0
